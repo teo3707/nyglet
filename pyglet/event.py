@@ -144,3 +144,124 @@ class EventDispatcher(object):
                     break
             except KeyError:
                 pass
+
+    def _remove_handler(self, name, handler):
+        """Used internally to remove all handler instances for the given event name.
+        """
+        # Iterate over a copy as we might mutate teh list
+        for frame in list(self._event_stack):
+            if name in frame and frame[name] == handler:
+                del frame[name]
+                if not frame:
+                    self._event_stack.remove(frame)
+
+    def dispatch_event(self, event_type, *args):
+        """Dispatch a single event to teh attached handlers.
+        """
+        assert hasattr(self, 'event_types'), (
+            "No Events registered on this EventDispatcher. "
+            "You need to register events with teh class method "
+            "EventDispatcher.register_event_type('event_name')"
+        )
+        assert event_type in self.event_types,\
+            "%r not found in %r.event_types == %r" % (event_type, self, self.event_types)
+
+        invoked = False
+
+        # Search handler stack for matching event handlers
+        for frame in list(self._event_stack):
+            handler = frame.get(event_type, None)
+            if not handler:
+                continue
+            if isinstance(handler, WeakMethod):
+                handler = handler()
+                assert handler is not None
+            try:
+                invoked = True
+                if handler(*args):
+                    return EVENT_HANDLED
+            except TypeError as exception:
+                self._raise_dispatch_exception(event_type, args, handler, exception)
+
+        # Check instance for an event handler
+        try:
+            if getattr(self, event_type)(*args):
+                return EVENT_HANDLED
+        except AttributeError:
+            pass
+        except TypeError as exception:
+            self._raise_dispatch_exception(event_type, args, getattr(self, event_type), exception)
+        else:
+            invoked = True
+
+        if invoked:
+            return EVENT_HANDLED
+
+        return False
+
+    def _raise_dispatch_exception(self, event_type, args, handler, exception):
+        # A common problem in application is having teh wrong number of
+        # arguments in an event handler, This is caught as a TypeError in
+        # dispatch_event but the error message is obfuscated.
+        #
+        # Here we check if there is indent a mismatch in argument count,
+        # and construct a more useful exception message if so. If this method
+        # doesn't find a problem with the number of arguments, the error
+        # is re-raised as if we weren't here.
+        n_args = len(args)
+
+        # Inspect the handler
+        argspecs = inspect.getfullargspec(handler)
+        handler_args = argspecs.args
+        handler_varargs = argspecs.varargs
+        handler_defaults = argspecs.defaults
+
+        n_handler_args = len(handler_args)
+
+        # Remove "self" arg from handle if it's a bound method
+        if inspect.ismethod(handler) and handler.__self__:
+            n_handler_args -= 1
+
+        # Allow *args varargs to over specify arguments
+        n_handler_args = max(n_handler_args, n_args)
+
+        # Allow default values to over specify arguments
+        if (n_handler_args != n_args and handler_defaults and
+                n_handler_args - len(handler_defaults) <= n_args):
+            n_handler_args = n_args
+
+        if n_handler_args != n_args:
+            if inspect.isfunction(handler) or inspect.ismethod(handler):
+                descr = "'%s' at %s:%d" % (handler.__name__,
+                                           handler.__code__.co_filename,
+                                           handler.__code__.co_firstlineno)
+            else:
+                descr = repr(handler)
+
+            raise TypeError("The '{0} event was dispatch with {1} arguments, "
+                            "but your handler {2} accepts only {3} arguments.".format(
+                             event_type, len(args), descr, len(handler_args)))
+        else:
+            raise exception
+
+    def event(self, *args):
+        """Function decorator for an event handler.
+        """
+        if len(args) == 0:                           # @window.event()
+            def decorator(func):
+                name = func.__name__
+                self.set_handler(name, func)
+                return func
+            return decorator
+        elif inspect.isroutine(args[0]):             # @window.event
+            func = args[0]
+            name = func.__name__
+            self.set_handler(name, func)
+            return args[0]
+        elif isinstance(args[0], str):               # @window.event('on_resize')
+            name = args[0]
+
+            def decorator(func):
+                self.set_handler(name, func)
+                return func
+            return decorator

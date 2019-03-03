@@ -14,3 +14,7 @@ import math
 import pyglet
 from pyglet import gl
 import pyglet.window.key
+
+
+if __name__  == '__main__':
+    pass
