@@ -1,10 +1,45 @@
+#!/usr/bin/python
+# ----------------------------------------------------------------------------
+# pyglet
+# Copyright (c) 2006-2018 Alex Holkner
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+#  * Neither the name of pyglet nor the names of its
+#    contributors may be used to endorse or promote products
+#    derived from this software without specific prior written
+#    permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+# $Id:$
+
 from __future__ import absolute_import
-from pyglet.canvas.base import Display, Screen, ScreenMode, Canvas
+from .base import Display, Screen, ScreenMode, Canvas
 
 from pyglet.libs.win32 import _kernel32, _user32, types, constants
 from pyglet.libs.win32.constants import *
 from pyglet.libs.win32.types import *
-
 
 class Win32Display(Display):
     def get_screens(self):
@@ -13,12 +48,12 @@ class Win32Display(Display):
             r = lprcMonitor.contents
             width = r.right - r.left
             height = r.bottom - r.top
-            screens.append(Win32Screen(self, hMonitor, r.left, r.top, width, height))
+            screens.append(
+                Win32Screen(self, hMonitor, r.left, r.top, width, height))
             return True
         enum_proc_ptr = MONITORENUMPROC(enum_proc)
         _user32.EnumDisplayMonitors(None, None, enum_proc_ptr, 0)
         return screens
-
 
 class Win32Screen(Screen):
     _initial_mode = None
@@ -51,6 +86,7 @@ class Win32Screen(Screen):
             r = _user32.EnumDisplaySettingsW(device_name, i, byref(mode))
             if not r:
                 break
+
             modes.append(Win32ScreenMode(self, mode))
             i += 1
 
@@ -60,7 +96,7 @@ class Win32Screen(Screen):
         mode = DEVMODE()
         mode.dmSize = sizeof(DEVMODE)
         _user32.EnumDisplaySettingsW(self.get_device_name(),
-                                     ENUM_CURRENT_SETTINGS,
+                                     ENUM_CURRENT_SETTINGS, 
                                      byref(mode))
         return Win32ScreenMode(self, mode)
 
@@ -69,7 +105,6 @@ class Win32Screen(Screen):
 
         if not self._initial_mode:
             self._initial_mode = self.get_mode()
-
         r = _user32.ChangeDisplaySettingsExW(self.get_device_name(),
                                              byref(mode._mode),
                                              None,
@@ -83,7 +118,6 @@ class Win32Screen(Screen):
         if self._initial_mode:
             self.set_mode(self._initial_mode)
 
-
 class Win32ScreenMode(ScreenMode):
     def __init__(self, screen, mode):
         super(Win32ScreenMode, self).__init__(screen)
@@ -93,9 +127,9 @@ class Win32ScreenMode(ScreenMode):
         self.depth = mode.dmBitsPerPel
         self.rate = mode.dmDisplayFrequency
 
-
 class Win32Canvas(Canvas):
     def __init__(self, display, hwnd, hdc):
         super(Win32Canvas, self).__init__(display)
         self.hwnd = hwnd
         self.hdc = hdc
+

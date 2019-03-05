@@ -1,3 +1,37 @@
+# ----------------------------------------------------------------------------
+# pyglet
+# Copyright (c) 2006-2018 Alex Holkner
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+#  * Neither the name of pyglet nor the names of its
+#    contributors may be used to endorse or promote products
+#    derived from this software without specific prior written
+#    permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+
 """
 """
 
@@ -24,7 +58,7 @@ del _int_types
 
 
 # PUINT is defined only from >= python 3.2
-if sys.version_info < (3,2)[:2]:
+if sys.version_info < (3, 2)[:2]:
     PUINT = POINTER(UINT)
 
 
@@ -44,7 +78,8 @@ def POINTER_(obj):
         def from_param(cls, x):
             if x is None:
                 return cls()
-            return x
+            else:
+                return x
         p.from_param = classmethod(from_param)
 
     return p
@@ -98,9 +133,9 @@ class WNDCLASS(Structure):
 
 class SECURITY_ATTRIBUTES(Structure):
     _fields_ = [
-        ('nLength', DWORD),
-        ('lpSecurityDescriptor', c_void_p),
-        ('bInheritHandle', BOOL)
+        ("nLength", DWORD),
+        ("lpSecurityDescriptor", c_void_p),
+        ("bInheritHandle", BOOL)
     ]
     __slots__ = [f[0] for f in _fields_]
 
@@ -141,7 +176,7 @@ class RGBQUAD(Structure):
         ('rgbBlue', BYTE),
         ('rgbGreen', BYTE),
         ('rgbRed', BYTE),
-        ('rgbReserved', BYTE)
+        ('rgbReserved', BYTE),
     ]
     __slots__ = [f[0] for f in _fields_]
 
@@ -150,7 +185,7 @@ class CIEXYZ(Structure):
     _fields_ = [
         ('ciexyzX', DWORD),
         ('ciexyzY', DWORD),
-        ('ciexyzZ', DWORD)
+        ('ciexyzZ', DWORD),
     ]
     __slots__ = [f[0] for f in _fields_]
 
@@ -159,7 +194,7 @@ class CIEXYZTRIPLE(Structure):
     _fields_ = [
         ('ciexyzRed', CIEXYZ),
         ('ciexyzBlue', CIEXYZ),
-        ('ciexyzGreen', CIEXYZ)
+        ('ciexyzGreen', CIEXYZ),
     ]
     __slots__ = [f[0] for f in _fields_]
 
@@ -174,9 +209,9 @@ class BITMAPINFOHEADER(Structure):
         ('biCompression', DWORD),
         ('biSizeImage', DWORD),
         ('biXPelsPerMeter', LONG),
-        ('biYPelsPermeter', LONG),
+        ('biYPelsPerMeter', LONG),
         ('biClrUsed', DWORD),
-        ('biClrImportant', DWORD)
+        ('biClrImportant', DWORD),
     ]
 
 
@@ -205,7 +240,7 @@ class BITMAPV5HEADER(Structure):
         ('bV5Intent', DWORD),
         ('bV5ProfileData', DWORD),
         ('bV5ProfileSize', DWORD),
-        ('bV5Reserved', DWORD)
+        ('bV5Reserved', DWORD),
     ]
 
 
@@ -240,7 +275,7 @@ class TRACKMOUSEEVENT(Structure):
     _fields_ = [
         ('cbSize', DWORD),
         ('dwFlags', DWORD),
-        ('handTrack', HWND),
+        ('hwndTrack', HWND),
         ('dwHoverTime', DWORD)
     ]
     __slots__ = [f[0] for f in _fields_]
@@ -279,7 +314,7 @@ class TEXTMETRIC(Structure):
         ('tmOverhang', c_long),
         ('tmDigitizedAspectX', c_long),
         ('tmDigitizedAspectY', c_long),
-        ('tmFirstChar', c_char),
+        ('tmFirstChar', c_char),  # Use ASCII
         ('tmLastChar', c_char),
         ('tmDefaultChar', c_char),
         ('tmBreakChar', c_char),
@@ -311,7 +346,7 @@ class DEVMODE(Structure):
         ('dmSize', WORD),
         ('dmDriverExtra', WORD),
         ('dmFields', DWORD),
-        # Just using largets union member here
+        # Just using largest union member here
         ('dmOrientation', c_short),
         ('dmPaperSize', c_short),
         ('dmPaperLength', c_short),
@@ -320,7 +355,7 @@ class DEVMODE(Structure):
         ('dmCopies', c_short),
         ('dmDefaultSource', c_short),
         ('dmPrintQuality', c_short),
-        # End Union
+        # End union
         ('dmColor', c_short),
         ('dmDuplex', c_short),
         ('dmYResolution', c_short),
@@ -331,15 +366,15 @@ class DEVMODE(Structure):
         ('dmBitsPerPel', DWORD),
         ('dmPelsWidth', DWORD),
         ('dmPelsHeight', DWORD),
-        ('dmDisplayFlags', DWORD),  # union with dmNup
+        ('dmDisplayFlags', DWORD), # union with dmNup
         ('dmDisplayFrequency', DWORD),
         ('dmICMMethod', DWORD),
         ('dmICMIntent', DWORD),
         ('dmDitherType', DWORD),
         ('dmReserved1', DWORD),
-        ('dmReversed2', DWORD),
+        ('dmReserved2', DWORD),
         ('dmPanningWidth', DWORD),
-        ('dmPanningHeight', DWORD)
+        ('dmPanningHeight', DWORD),
     ]
 
 
@@ -351,6 +386,7 @@ class ICONINFO(Structure):
         ('hbmMask', HBITMAP),
         ('hbmColor', HBITMAP)
     ]
+    __slots__ = [f[0] for f in _fields_]
 
 
 class RAWINPUTDEVICE(Structure):
@@ -371,14 +407,14 @@ class RAWINPUTHEADER(Structure):
         ('dwType', DWORD),
         ('dwSize', DWORD),
         ('hDevice', HANDLE),
-        ('wParam', WPARAM)
+        ('wParam', WPARAM),
     ]
 
 
 class _Buttons(Structure):
     _fields_ = [
         ('usButtonFlags', USHORT),
-        ('usButtonData', USHORT)
+        ('usButtonData', USHORT),
     ]
 
 
@@ -386,7 +422,7 @@ class _U(Union):
     _anonymous_ = ('_buttons',)
     _fields_ = [
         ('ulButtons', ULONG),
-        ('_buttons', _Buttons)
+        ('_buttons', _Buttons),
     ]
 
 
@@ -398,7 +434,7 @@ class RAWMOUSE(Structure):
         ('ulRawButtons', ULONG),
         ('lLastX', LONG),
         ('lLastY', LONG),
-        ('ulExtraInformation', ULONG)
+        ('ulExtraInformation', ULONG),
     ]
 
 
@@ -409,15 +445,15 @@ class RAWKEYBOARD(Structure):
         ('Reserved', USHORT),
         ('VKey', USHORT),
         ('Message', UINT),
-        ('ExtraInformation', ULONG)
+        ('ExtraInformation', ULONG),
     ]
 
 
 class RAWHID(Structure):
-    _fields_= [
+    _fields_ = [
         ('dwSizeHid', DWORD),
         ('dwCount', DWORD),
-        ('bRawData', POINTER(BYTE))
+        ('bRawData', POINTER(BYTE)),
     ]
 
 
@@ -425,12 +461,12 @@ class _RAWINPUTDEVICEUNION(Union):
     _fields_ = [
         ('mouse', RAWMOUSE),
         ('keyboard', RAWKEYBOARD),
-        ('hid', RAWHID)
+        ('hid', RAWHID),
     ]
 
 
 class RAWINPUT(Structure):
     _fields_ = [
         ('header', RAWINPUTHEADER),
-        ('data', _RAWINPUTDEVICEUNION)
+        ('data', _RAWINPUTDEVICEUNION),
     ]

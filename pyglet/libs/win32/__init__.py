@@ -1,3 +1,39 @@
+#!/usr/bin/python
+# ----------------------------------------------------------------------------
+# pyglet
+# Copyright (c) 2006-2018 Alex Holkner
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+#  * Neither the name of pyglet nor the names of its
+#    contributors may be used to endorse or promote products
+#    derived from this software without specific prior written
+#    permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+# $Id: $
+
 from __future__ import print_function
 from __future__ import absolute_import
 from builtins import object
@@ -7,7 +43,7 @@ import pyglet
 from . import constants
 from .types import *
 
-IS64 = struct.calcsize("p") == 8
+IS64 = struct.calcsize("P") == 8
 
 _debug_win32 = pyglet.options['debug_win32']
 
@@ -18,7 +54,7 @@ if _debug_win32:
     _FormatMessageA = windll.kernel32.FormatMessageA
 
     _log_win32 = open('debug_win32.log', 'w')
-
+    
     def format_error(err):
         msg = create_string_buffer(256)
         _FormatMessageA(constants.FORMAT_MESSAGE_FROM_SYSTEM,
@@ -29,8 +65,7 @@ if _debug_win32:
                         len(msg),
                         c_void_p())
         return msg.value
-
-
+    
     class DebugLibrary(object):
         def __init__(self, lib):
             self.lib = lib
@@ -47,6 +82,7 @@ if _debug_win32:
                         _log_win32.write(entry)
                     print(format_error(err), file=_log_win32)
                 return result
+
             return f
 else:
     DebugLibrary = lambda lib: lib
@@ -68,7 +104,7 @@ _gdi32.CreateCompatibleDC.argtypes = [HDC]
 _gdi32.CreateDIBitmap.restype = HBITMAP
 _gdi32.CreateDIBitmap.argtypes = [HDC, POINTER(BITMAPINFOHEADER), DWORD, c_void_p, POINTER(BITMAPINFO), UINT]
 _gdi32.CreateDIBSection.restype = HBITMAP
-_gdi32.CreateDIBSection.argtypes = [HDC, c_void_p, UINT, c_void_p, HANDLE, DWORD]
+_gdi32.CreateDIBSection.argtypes = [HDC, c_void_p, UINT, c_void_p, HANDLE, DWORD]  # POINTER(BITMAPINFO)
 _gdi32.CreateFontIndirectA.restype = HFONT
 _gdi32.CreateFontIndirectA.argtypes = [POINTER(LOGFONT)]
 _gdi32.DeleteDC.restype = BOOL
@@ -82,10 +118,10 @@ _gdi32.ExtTextOutA.argtypes = [HDC, c_int, c_int, UINT, LPRECT, c_char_p, UINT, 
 _gdi32.GdiFlush.restype = BOOL
 _gdi32.GdiFlush.argtypes = []
 _gdi32.GetCharABCWidthsW.restype = BOOL
-_gdi32.GetCharABCWidthsWargtypes = [HDC, UINT, UINT, POINTER(ABC)]
+_gdi32.GetCharABCWidthsW.argtypes = [HDC, UINT, UINT, POINTER(ABC)]
 _gdi32.GetCharWidth32W.restype = BOOL
 _gdi32.GetCharWidth32W.argtypes = [HDC, UINT, UINT, POINTER(INT)]
-_gdi32.GetStockObject.restype = HGDIOBJ
+_gdi32.GetStockObject.restype =  HGDIOBJ
 _gdi32.GetStockObject.argtypes = [c_int]
 _gdi32.GetTextMetricsA.restype = BOOL
 _gdi32.GetTextMetricsA.argtypes = [HDC, POINTER(TEXTMETRIC)]
@@ -105,7 +141,7 @@ _gdi32.SwapBuffers.argtypes = [HDC]
 _kernel32.CloseHandle.restype = BOOL
 _kernel32.CloseHandle.argtypes = [HANDLE]
 _kernel32.CreateEventW.restype = HANDLE
-_kernel32.CreateEventW.argtypes = [POINTER(SECURITY_ATTRIBUTES), BOOL, BOOL, c_wchar_p,]
+_kernel32.CreateEventW.argtypes = [POINTER(SECURITY_ATTRIBUTES), BOOL, BOOL, c_wchar_p]
 _kernel32.CreateWaitableTimerA.restype = HANDLE
 _kernel32.CreateWaitableTimerA.argtypes = [POINTER(SECURITY_ATTRIBUTES), BOOL, c_char_p]
 _kernel32.GetCurrentThreadId.restype = DWORD
@@ -133,10 +169,10 @@ _user32.ClientToScreen.restype = BOOL
 _user32.ClientToScreen.argtypes = [HWND, LPPOINT]
 _user32.ClipCursor.restype = BOOL
 _user32.ClipCursor.argtypes = [LPRECT]
-_user32.CreateIconIndirect.restyep = HICON
+_user32.CreateIconIndirect.restype = HICON
 _user32.CreateIconIndirect.argtypes = [POINTER(ICONINFO)]
 _user32.CreateWindowExW.restype = HWND
-_user32.CreateWindowExW.argtyps = [DWORD, c_wchar_p, c_wchar_p, DWORD, c_int, c_int, c_int, c_int, HWND, HMENU, HINSTANCE, LPVOID]
+_user32.CreateWindowExW.argtypes = [DWORD, c_wchar_p, c_wchar_p, DWORD, c_int, c_int, c_int, c_int, HWND, HMENU, HINSTANCE, LPVOID]
 _user32.DefWindowProcW.restype = LRESULT
 _user32.DefWindowProcW.argtypes = [HWND, UINT, WPARAM, LPARAM]
 _user32.DestroyWindow.restype = BOOL
@@ -151,14 +187,14 @@ _user32.FillRect.restype = c_int
 _user32.FillRect.argtypes = [HDC, LPRECT, HBRUSH]
 _user32.GetClientRect.restype = BOOL
 _user32.GetClientRect.argtypes = [HWND, LPRECT]
-_user32.GetCursorPos.restyep = BOOL
+_user32.GetCursorPos.restype = BOOL
 _user32.GetCursorPos.argtypes = [LPPOINT]
 # workaround for win 64-bit, see issue #664
-_user32.GetDC.restype = c_void_p     # HDC
-_user32.GetDC.argtypes = [c_void_p]  # HWND
+_user32.GetDC.restype = c_void_p # HDC
+_user32.GetDC.argtypes = [c_void_p] # [HWND]
 _user32.GetDesktopWindow.restype = HWND
 _user32.GetDesktopWindow.argtypes = []
-_user32.GetKeyState.restype = HWND
+_user32.GetKeyState.restype = c_short
 _user32.GetKeyState.argtypes = [c_int]
 _user32.GetMessageW.restype = BOOL
 _user32.GetMessageW.argtypes = [LPMSG, HWND, UINT, UINT]
@@ -168,29 +204,29 @@ _user32.GetQueueStatus.restype = DWORD
 _user32.GetQueueStatus.argtypes = [UINT]
 _user32.GetSystemMetrics.restype = c_int
 _user32.GetSystemMetrics.argtypes = [c_int]
-_user32.LoadCursorW.restye = HCURSOR
+_user32.LoadCursorW.restype = HCURSOR
 _user32.LoadCursorW.argtypes = [HINSTANCE, c_wchar_p]
-_user32.LoadIconW.restye = HICON
+_user32.LoadIconW.restype = HICON
 _user32.LoadIconW.argtypes = [HINSTANCE, c_wchar_p]
 _user32.MapVirtualKeyW.restype = UINT
 _user32.MapVirtualKeyW.argtypes = [UINT, UINT]
 _user32.MapWindowPoints.restype = c_int
-_user32.MapWindowPoints.argtypes = [HWND, HWND, c_void_p, UINT]    # HWND, HWND, LPPOINT, UINT
+_user32.MapWindowPoints.argtypes = [HWND, HWND, c_void_p, UINT]  # HWND, HWND, LPPOINT, UINT
 _user32.MsgWaitForMultipleObjects.restype = DWORD
 _user32.MsgWaitForMultipleObjects.argtypes = [DWORD, POINTER(HANDLE), BOOL, DWORD, DWORD]
 _user32.PeekMessageW.restype = BOOL
 _user32.PeekMessageW.argtypes = [LPMSG, HWND, UINT, UINT, UINT]
 _user32.PostThreadMessageW.restype = BOOL
 _user32.PostThreadMessageW.argtypes = [DWORD, UINT, WPARAM, LPARAM]
-_user32.RegisterClassW.restype = BOOL
+_user32.RegisterClassW.restype = ATOM
 _user32.RegisterClassW.argtypes = [POINTER(WNDCLASS)]
 _user32.RegisterHotKey.restype = BOOL
 _user32.RegisterHotKey.argtypes = [HWND, c_int, UINT, UINT]
 _user32.ReleaseCapture.restype = BOOL
 _user32.ReleaseCapture.argtypes = []
 # workaround for win 64-bit, see issue #664
-_user32.ReleaseDC.restype = c_int32  # c_int
-_user32.ReleaseDC.argtypes = [c_void_p, c_void_p]  # [HWND, HDC]
+_user32.ReleaseDC.restype = c_int32 # c_int
+_user32.ReleaseDC.argtypes = [c_void_p, c_void_p] # [HWND, HDC]
 _user32.ScreenToClient.restype = BOOL
 _user32.ScreenToClient.argtypes = [HWND, LPPOINT]
 _user32.SetCapture.restype = HWND
@@ -235,3 +271,4 @@ _user32.RegisterRawInputDevices.restype = BOOL
 _user32.RegisterRawInputDevices.argtypes = [PCRAWINPUTDEVICE, UINT, UINT]
 _user32.GetRawInputData.restype = UINT
 _user32.GetRawInputData.argtypes = [HRAWINPUT, UINT, LPVOID, PUINT, UINT]
+

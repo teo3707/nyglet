@@ -1,4 +1,64 @@
-"""Key constants and utilities for pyglet.window"""
+# ----------------------------------------------------------------------------
+# pyglet
+# Copyright (c) 2006-2018 Alex Holkner
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+#  * Neither the name of pyglet nor the names of its
+#    contributors may be used to endorse or promote products
+#    derived from this software without specific prior written
+#    permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+# ----------------------------------------------------------------------------
+
+"""Key constants and utilities for pyglet.window.
+
+Usage::
+
+    from pyglet.window import Window
+    from pyglet.window import key
+
+    window = Window()
+
+    @window.event
+    def on_key_press(symbol, modifiers):
+        # Symbolic names:
+        if symbol == key.RETURN:
+
+        # Alphabet keys:
+        elif symbol == key.Z:
+
+        # Number keys:
+        elif symbol == key._1:
+
+        # Number keypad keys:
+        elif symbol == key.NUM_1:
+
+        # Modifiers:
+        if modifiers & key.MOD_CTRL:
+
+"""
 from builtins import str
 
 from pyglet import compat_platform
@@ -11,15 +71,15 @@ class KeyStateHandler(dict):
     """Simple handler that tracks the state of keys on the keyboard. If a
     key is pressed then this handler holds a True value for it.
 
-    For example:
+    For example::
+
         >>> win = window.Window
         >>> keyboard = key.KeyStateHandler()
         >>> win.push_handlers(keyboard)
 
-
         # Hold down the "up" arrow...
 
-        >>> keyboard[key.up]
+        >>> keyboard[key.UP]
         True
         >>> keyboard[key.DOWN]
         False
@@ -31,12 +91,13 @@ class KeyStateHandler(dict):
     def on_key_release(self, symbol, modifiers):
         self[symbol] = False
 
-    def __getattr__(self, key):
+    def __getitem__(self, key):
         return self.get(key, False)
 
 
 def modifiers_string(modifiers):
     """Return a string describing a set of modifiers.
+
     Example::
 
         >>> modifiers_string(MOD_SHIFT | MOD_CTRL)
@@ -119,7 +180,6 @@ def user_key(scancode):
     """
     assert scancode > 0
     return scancode << 32
-
 
 # Modifier mask constants
 MOD_SHIFT       = 1 << 0
@@ -356,8 +416,9 @@ _key_names = {}
 _motion_names = {}
 for _name, _value in locals().copy().items():
     if _name[:2] != '__' and _name.upper() == _name and \
-        not _name.startswith('MOD_'):
+       not _name.startswith('MOD_'):
         if _name.startswith('MOTION_'):
             _motion_names[_value] = _name
         else:
             _key_names[_value] = _name
+
